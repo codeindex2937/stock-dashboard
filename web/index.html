@@ -1,0 +1,122 @@
+<head>
+	<title>eel</title>
+	<meta charset="utf-8">
+  <script type="text/javascript" src="/eel.js"></script>
+	<script type="text/javascript" src='js/vue.global.js'></script>
+	<script type="text/javascript" src='js/plotly-latest.min.js'></script>
+	<script type="text/javascript" src='js/vue-router.global.js'></script>
+	<script type="module">
+		import TagPage from './component/summary-page/TagPage.js';
+		import HistoryPage from './component/single-page/HistoryPage.js';
+		import GroupPage from './component/summary-page/GroupPage.js';
+		import RealTimePage from './component/single-page/RealTimePage.js';
+		import VueObserveVisibility from './js/vue-observe-visibility.min.js';
+		import VueDebounce from './js/vue-debounce.js';
+
+		window.onload = function() {
+			const routes = [
+				{
+					path: "/tag/:tag",
+					name: "tag",
+					component: TagPage,
+					beforeEnter: (to, from, next) => {
+						if (app.$data.selectedTags !== to.params.tag) {
+							app.$data.selectedTags = to.params.tag;
+						}
+						next();
+					}
+				},
+				{
+					path: "/history/:stockId",
+					name: "history",
+					component: HistoryPage,
+					props: (r) => {return {stockId: r.params.stockId}}
+				},
+				{
+					path: "/realtime/:stockId",
+					name: "realtime",
+					component: RealTimePage,
+					props: (r) => {return {stockId: r.params.stockId}}
+				},
+				{
+					path: "/group",
+					name: "group",
+					component: GroupPage
+				},
+			];
+			
+			const router = VueRouter.createRouter({
+				history: VueRouter.createWebHistory(),
+				routes,
+			});
+			var app = Vue.createApp({
+				template: `
+					<div style="display: flex; flex-direction:column ; width: 100%;height: 100%;">
+						<div>
+							<select v-model="selectedTags">
+								<option v-for="tag in tags" :value="tag.tag">
+									{{ tag.tag }}
+								</option>
+							</select>
+							<input type="text" v-model="stockID" v-debounce:1s="stockIDUpdated"/>
+							<router-link to="/group">類股指數</router-link>
+						</div>
+						<div style="flex-grow: 1; overflow: auto;">
+							<router-view v-slot="{ Component }" :key="$route.fullPath" :tags="selectedIds">
+								<component :is="Component" />
+							</router-view>
+						</div>
+					</div>
+				`,
+				data() {
+					return {
+						selectedTags: null,
+						stockID: null,
+						tagMap: {},
+						selectedIds: [],
+					}
+				},
+				async created() {
+					var rawTags = await eel.list_tag()();
+					this.tagMap = rawTags.reduce((cur, tag) => {
+						if (tag.tag in cur) {
+							cur[tag.tag].tagIds.push(tag.tag_id);
+						}
+						else {
+							cur[tag.tag] = {
+								tag: tag.tag,
+								tagIds: [tag.tag_id],
+							};
+						}
+
+						return cur;
+					}, {});
+				},
+				watch: {
+					selectedTags(newVal) {
+						this.selectedIds = this.tagMap[newVal].tagIds;
+						this.$router.push('/tag/'+newVal);
+					},
+				},
+				computed: {
+					tags() {
+						return Object.values(this.tagMap);
+					},
+				},
+				methods: {
+					stockIDUpdated(newVal) {
+						if (newVal.length >= 4) {
+							this.stockID = '';
+							this.$router.push('/realtime/' + newVal);
+						}
+					},
+				},
+			}).use(router).use(VueObserveVisibility).use(VueDebounce).mount('#myDiv');
+		}
+	</script>
+</head>
+
+<body style="margin:0;">
+	<div id='myDiv'>
+	</div>
+</body>

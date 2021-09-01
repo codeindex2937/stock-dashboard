@@ -1,0 +1,3 @@
+[submodule "task-pipeline"]
+	path = task_pipeline
+	url = https://github.com/codeindex2937/task-pipeline.git
