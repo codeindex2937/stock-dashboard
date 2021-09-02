@@ -49,7 +49,7 @@ stock_list = db.list_stock()
 last_trade_map = {trade['stock_id']: trade for trade in db.list_last_trade()}
 stock_id_map = {stock['id']: stock for stock in stock_list}
 
-trades_file = 'stock/trades.txt'
+trades_file = 'trades.txt'
 trades_map = {}
 total_store = Store()
 total_history = []

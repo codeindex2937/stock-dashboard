@@ -12,9 +12,11 @@ export default {
 				(remain: {{ remainCount }})
 			</span>
 		</div>
-		<div>
-			<input type="checkbox" v-model="major">
-			<tag-selector :stock-id="stockId" v-model="trendTag" />
+		<div class="container">
+			<div class="row align-items-center justify-content-start">
+				<input type="checkbox" v-model="major" class="form-check-input">
+				<tag-selector :stock-id="stockId" v-model="trendTag" />
+			</div>
 		</div>
 		<div :id="'chart-'+ stockId" :key="stockId"></div>
 	</div>`,
@@ -72,13 +74,13 @@ export default {
 			var ret = {};
 
 			if (this.trendTag === 'rising') {
-				ret['background-color'] = '#ffe6e6';
+				ret['background-color'] = '#fff3f3';
 			}
 			if (this.trendTag === 'jitter') {
-				ret['background-color'] = '#ffffe6';
+				ret['background-color'] = '#fffff3';
 			}
 			if (this.trendTag === 'falling') {
-				ret['background-color'] = '#e6ffe6';
+				ret['background-color'] = '#f3fff3';
 			}
 
 			return ret;
