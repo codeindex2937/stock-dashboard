@@ -4,8 +4,8 @@ import json
 from datetime import datetime
 from datetime import timedelta, datetime
 
-from task_pipeline.stock.service import DB, AnalyzeDB
-from task_pipeline.stock.worker import parseTrades, Store
+from tasq.stock.service import DB, AnalyzeDB
+from tasq.stock.worker import parseTrades, Store
 from app_utils import getGroupHistory, getStockRealtime, getGroupRealtime
 
 class Store:
