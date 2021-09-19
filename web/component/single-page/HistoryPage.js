@@ -1,4 +1,4 @@
-import OHLCChart from '../chart/OHLCChart.js';
+import OHLCChart from '../chart/IndexChart.js';
 export default {
 	template: `
 	<div style="min-height: 600px;">

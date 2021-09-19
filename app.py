@@ -100,7 +100,6 @@ def list_trade(stock_id):
 			result = json.load(f)
 			if stock_id in last_trade_map:
 				last_trade_date = last_trade_map[stock_id]['date']
-				
 
 			if result['date'] == datetime.strftime(last_trade_date, '%Y-%m-%d'):
 				return result
@@ -109,20 +108,25 @@ def list_trade(stock_id):
 	date_filter = "date BETWEEN '{}' AND '{}'".format(datetime.strftime(since, '%Y-%m-%d'), datetime.strftime(last_trade_date, '%Y-%m-%d'))
 	trades = db.list_trade({'stock_id': stock_id}, extra=date_filter)
 	stock = stock_id_map.get(str(stock_id), {})
-	invester_info = db.list_invester({'stock_id': stock_id}, date_filter)
+
 	result = {
 		'date': datetime.strftime(last_trade_date, '%Y-%m-%d'),
 		'name': stock['name'],
 		'data': {
-			'date': [datetime.strftime(trade[1], '%Y-%m-%d') for trade in trades],
-			'open': [trade[5] for trade in trades],
-			'close': [trade[6] for trade in trades],
-			'low': [trade[7] for trade in trades],
-			'high': [trade[8] for trade in trades],
+			'date': [datetime.strftime(trade['date'], '%Y-%m-%d') for trade in trades],
+			'open': [trade['open_price'] for trade in trades],
+			'close': [trade['close_price'] for trade in trades],
+			'low': [trade['lowest_price'] for trade in trades],
+			'high': [trade['highest_price'] for trade in trades],
 		},
 		'invester': {
-			'date': [datetime.strftime(info['date'], '%Y-%m-%d') for info in invester_info],
-			'percent': [info['hold_by_foreign_percent'] for info in invester_info],
+			'date': [datetime.strftime(info['date'], '%Y-%m-%d') for info in trades],
+			'percent': [info['hold_by_foreign_percent'] for info in trades],
+		},
+		'margin': {
+			'date': [datetime.strftime(info['date'], '%Y-%m-%d') for info in trades],
+			'purchase_balance': [info['margin_purchase_today_balance'] for info in trades],
+			'short_sale_balance': [info['short_sale_today_balance'] for info in trades],
 		},
 		'trades': []
 	}
